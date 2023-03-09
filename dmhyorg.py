@@ -24,11 +24,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from re import findall
+
 # import qBT modules
 try:
-    from novaprinter import prettyPrinter
-    from helpers import retrieve_url
+	import re
+	from novaprinter import prettyPrinter
+	from helpers import retrieve_url
 except ModuleNotFoundError:
     pass
 
@@ -37,27 +38,34 @@ class dmhyorg(object):
 	name = "DMHY"
 	supported_categories = {"all": 0, "anime": 2,
         "pictures": 3, "music": 4, "tv": 6, "games": 9}
-	reg = '<tr\s+class="even"[\s\S]*?</td>\s+<td\s+class="title">\s+<a\s+href="([^"]+)"[^>]+>\s*([\s\S]+?)\s*<span\s+class="keyword">[\s\S]+?<td\s+nowrap="nowrap"\s+align="center">\s+<a\s+class="download-arrow arrow-magnet"\s+title="磁力下載"\s+href="([^"]+)">[^<]+</a>[\s\S]+?</td>\s+<td\s+nowrap="nowrap"\s+align="center">([^<]+)</td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span class="btl_1">(\d+)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span\s+class="bts_1">(\d+)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center">(\d+)</td>'
+	reg = '<tr\s+class="[^"]*"[\s\S]*?</td>\s+<td\s+class="title">\s+<a\s+href="([^"]+)"[^>]+>\s*([\s\S]+?)\s*?</a>\s+</td>[\s\S]+?<td\s+nowrap="nowrap"\s+align="center">\s+<a\s+class="download-arrow arrow-magnet"\s+title="磁力下載"\s+href="([^"]+)">[^<]+</a>[\s\S]+?</td>\s+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span class="btl_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span\s+class="bts_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>'
 
 	def get_data(self, url):
 		html = retrieve_url(url)
-		result = findall(self.reg, html)
-		data, item = [], {}
+		result = re.findall(self.reg, html)
+		data, item, name = [], {}, ''
 		for v in result:
-			item = {'link': v[2], 'name': v[1], 'desc_link': v[0], 'size': v[3],
+			name = re.compile(r'<[^>]+>', re.S).sub('', v[1])
+			item = {'link': v[2], 'name': name, 'desc_link': self.url + v[0], 'size': v[3],
                 'seeds': v[4], 'leech': v[5], 'engine_url': self.url}
 			data.append(item)
+		#print(data)
+		#exit()
 		return [data, len(data)]
 
 	def search(self, what, cat="all"):
 		page, cate = 1, self.supported_categories.get(cat, "0")
-
 		while True:
 			url = "{}/topics/list/page/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(
 			    self.url, page, what, cate)
-			[data, len] = self.get_data(self, url)
+			[data, len] = self.get_data(url)
 			for item in data:
 				prettyPrinter(item)
 			if page >= 2 or len < 80:
 				break
 			page += 1
+
+""" test
+dmhy = dmhyorg()
+dmhy.search('revolution', 'all')
+"""
