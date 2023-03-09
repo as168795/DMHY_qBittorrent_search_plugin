@@ -69,10 +69,10 @@ class dmhyorg(object):
 			total += len
 			for item in data:
 				prettyPrinter(item)
-			if page >= 2 or len < 80:
+			if page >= self.page_max or len < 80:
 				break
 			page += 1
-		return total
+		#return total
 
 """ test
 dmhy = dmhyorg()
