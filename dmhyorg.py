@@ -24,11 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-try:
-	from re import findall
-except ModuleNotFoundError:
-	pass
-
+from re import findall
 # import qBT modules
 try:
     from novaprinter import prettyPrinter
@@ -59,9 +55,9 @@ class dmhyorg(object):
 		while True:
 			url = "{}/topics/list/page/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(
 			    self.url, page, what, cate)
-			[data, len] = self.get_data(url)
+			[data, len] = self.get_data(self, url)
 			for item in data:
 				prettyPrinter(item)
-			if page >= 5 and len < 80:
-				return
-			++page
+			if page >= 2 or len < 80:
+				break
+			page += 1
