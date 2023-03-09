@@ -38,18 +38,19 @@ class dmhyorg(object):
 	name = "DMHY"
 	supported_categories = {"all": 0, "anime": 2,
         "pictures": 3, "music": 4, "tv": 6, "games": 9}
-	reg = '<tr\s+class="[^"]*"[\s\S]*?</td>\s+<td\s+class="title">\s+<a\s+href="([^"]+)"[^>]+>\s*([\s\S]+?)\s*?</a>\s+</td>[\s\S]+?<td\s+nowrap="nowrap"\s+align="center">\s+<a\s+class="download-arrow arrow-magnet"\s+title="磁力下載"\s+href="([^"]+)">[^<]+</a>[\s\S]+?</td>\s+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span class="btl_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span\s+class="bts_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>'
+	reg = '<tr\s+class="[^"]*"[\s\S]*?</td>\s+<td\s+class="title">[\s\S]+?<a\s+href="([^"]+)"[^>]+>\s*([\s\S]+?)\s*?</a>[\s\S]+?</td>[\s\S]+?<td\s+nowrap="nowrap"\s+align="center">\s+<a\s+class="download-arrow arrow-magnet"\s+title="磁力下載"\s+href="([^"]+)">[^<]+</a>[\s\S]+?</td>\s+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span class="btl_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span\s+class="bts_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>'
 
 	def get_data(self, url):
 		html = retrieve_url(url)
 		result = re.findall(self.reg, html)
 		data, item, name = [], {}, ''
 		for v in result:
-			name = re.compile(r'<[^>]+>', re.S).sub('', v[1])
+			name = re.compile(r'<[^>]+>', re.S).sub('', v[1]).replace('\t', '').replace('\n', '').replace('\xa0', '')
 			item = {'link': v[2], 'name': name, 'desc_link': self.url + v[0], 'size': v[3],
                 'seeds': v[4], 'leech': v[5], 'engine_url': self.url}
 			data.append(item)
-		#print(data)
+			#data.append(item['name'])
+		#print(data, len(data))
 		#exit()
 		return [data, len(data)]
 
