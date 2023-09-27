@@ -1,5 +1,4 @@
-
-# VERSION: 2.00
+# VERSION: 2.01
 # AUTHORS: xyau (xyauhideto@gmail.com)
 
 # MIT License
@@ -46,6 +45,9 @@ class dmhyorg(object):
 	def get_data(self, url):
 		html = retrieve_url(url)
 		result = re.findall(self.table_reg, html)
+		if len(result) == 0 :
+			print('test----', url, result) # test
+			raise SystemExit
 		html_raw = result[0]
 		tr_raw = re.findall(self.tr_reg, html_raw)
 		data, item, name = [], {}, ''
@@ -55,27 +57,37 @@ class dmhyorg(object):
 				name = re.compile(r'<[^>]+>', re.S).sub('', v[1]).replace('\t', '').replace('\n', '').replace('\xa0', '')
 				item = {'link': v[2], 'name': name, 'desc_link': self.url + v[0], 'size': v[3], 'seeds': v[4], 'leech': v[5], 'engine_url': self.url}
 				data.append(item)
-				#data.append(name)
-		#print(tr, data, len(data))
-		#exit()
+				# data.append(name)
+		# print(tr, data, len(data))
+		# exit()
 		return [data, len(data)]
 
-	def search(self, what, cat="all"):
-		page, cate, total = 1, self.supported_categories.get(cat, "0"), 0
+	def search(self, what, cat = "all", maxpage = 99):
+		page, cate, total = 0, self.supported_categories.get(cat, "0"), 0
 		while True:
-			url = "{}/topics/list/page/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(
-			    self.url, page, what, cate)
+			# url = "{}/topics/list/page/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(self.url, page, what, cate)
+			url = "{}/topics/list/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(self.url, page, what, cate)
 			[data, len] = self.get_data(url)
 			total += len
 			for item in data:
 				prettyPrinter(item)
-			if page >= self.page_max or len < 80:
+			if page >= maxpage or page >= self.page_max or len < 80:
 				break
 			page += 1
-		#return total
+		return total
 
-""" test
-dmhy = dmhyorg()
-total = dmhy.search('game', 'all')
-print(total)
-"""
+
+""" test """
+def main():
+	args = sys.argv
+	# python dmhy-org.py "异世界" 1 # 需urlencode编码参数 如果是对象则 urllib.parse.urlencode(params) -> name=John+Doe&age=30&city=New+York  
+	title = urllib.parse.quote(args[1]) if len(args[1]) > 0 else "game"
+	maxpage = int(args[2]) if len(args[2]) > 0 else 99 # 最大页数
+	dmhy = dmhyorg()
+	total = dmhy.search(title, 'all', maxpage)
+	print(total)
+
+if __name__ == "__main__":
+	import sys
+	import urllib.parse
+	main()
