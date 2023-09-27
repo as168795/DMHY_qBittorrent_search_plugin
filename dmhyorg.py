@@ -46,7 +46,7 @@ class dmhyorg(object):
 		html = retrieve_url(url)
 		result = re.findall(self.table_reg, html)
 		if len(result) == 0 :
-			print('test----', url, result) # test
+			# print('test----', url, result) # test
 			raise SystemExit
 		html_raw = result[0]
 		tr_raw = re.findall(self.tr_reg, html_raw)
@@ -65,8 +65,7 @@ class dmhyorg(object):
 	def search(self, what, cat = "all", maxpage = 99):
 		page, cate, total = 0, self.supported_categories.get(cat, "0"), 0
 		while True:
-			# url = "{}/topics/list/page/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(self.url, page, what, cate)
-			url = "{}/topics/list/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(self.url, page, what, cate)
+			url = "{}/topics/list/page/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(self.url, page, what, cate)
 			[data, len] = self.get_data(url)
 			total += len
 			for item in data:
