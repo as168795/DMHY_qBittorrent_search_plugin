@@ -63,7 +63,7 @@ class dmhyorg(object):
 		return [data, len(data)]
 
 	def search(self, what, cat = "all", maxpage = 99):
-		page, cate, total = 0, self.supported_categories.get(cat, "0"), 0
+		page, cate, total = 1, self.supported_categories.get(cat, "0"), 0
 		while True:
 			url = "{}/topics/list/page/{}?keyword={}&sort_id={}&team_id=0&order=date-desc".format(self.url, page, what, cate)
 			[data, len] = self.get_data(url)
