@@ -1,5 +1,5 @@
-# VERSION: 2.01
-# AUTHORS: xyau (xyauhideto@gmail.com)
+# VERSION: 2.02
+# AUTHORS: hatn
 
 # MIT License
 #
@@ -23,18 +23,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-# import qBT modules
 try:
 	import re
+except ModuleNotFoundError:
+	SystemExit
+# import qBT modules
+try:
 	from novaprinter import prettyPrinter
 	from helpers import retrieve_url
 except ModuleNotFoundError:
-    pass
+	pass
 
 class dmhyorg(object):
 	url = "https://share.dmhy.org"
-	name = "DMHY"
+	name = "DMHY2"
+	
 	page_max = 6 # total: 80 * page_max
 	supported_categories = {"all": 0, "anime": 2, "pictures": 3, "music": 4, "tv": 6, "games": 9}
 	
@@ -46,7 +49,8 @@ class dmhyorg(object):
 		html = retrieve_url(url)
 		result = re.findall(self.table_reg, html)
 		if len(result) == 0 :
-			# print('test----', url, result) # test
+			if __name__ == "__main__":
+				print('test----', url, result) # test
 			raise SystemExit
 		html_raw = result[0]
 		tr_raw = re.findall(self.tr_reg, html_raw)
@@ -79,7 +83,7 @@ class dmhyorg(object):
 """ test """
 def main():
 	args = sys.argv
-	# python dmhy-org.py "异世界" 1 # 需urlencode编码参数 如果是对象则 urllib.parse.urlencode(params) -> name=John+Doe&age=30&city=New+York  
+	# python dmhy-org.py "异世界" 1 # 需urlencode编码参数 如果是对象则 urllib.parse.urlencode(params) -> name=John+Doe&age=30&city=New+York
 	title = urllib.parse.quote(args[1]) if len(args[1]) > 0 else "game"
 	maxpage = int(args[2]) if len(args[2]) > 0 else 99 # 最大页数
 	dmhy = dmhyorg()
