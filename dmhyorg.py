@@ -1,4 +1,4 @@
-# VERSION: 2.02
+# VERSION: 2.3
 # AUTHORS: hatn
 
 # MIT License
@@ -39,7 +39,7 @@ class dmhyorg(object):
 	name = "DMHY2"
 	
 	page_max = 6 # total: 80 * page_max
-	supported_categories = {"all": 0, "anime": 2, "pictures": 3, "music": 4, "tv": 6, "games": 9}
+	supported_categories = {"all": 0, "anime": 2, "pictures": 3, "music": 4, "tv": 31, "games": 9}
 	
 	table_reg = r'<table[^>]*id="topic_list"[^>]*>\s*<thead>[\s\S]+?</thead>\s*<tbody>([\s\S]+?)</tbody>\s*</table>'
 	tr_reg = r'(<tr[^>]*>[\s\S]+?</tr>)'
