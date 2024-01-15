@@ -44,7 +44,7 @@ class dmhyorg(object):
 
 	table_reg = r'<table[^>]*id="topic_list"[^>]*>\s*<thead>[\s\S]+?</thead>\s*<tbody>([\s\S]+?)</tbody>\s*</table>'
 	tr_reg = r"(<tr[^>]*>[\s\S]+?</tr>)"
-	reg = r'<tr\s+class="[^"]*">\s+<td\s+width="[^"]+">[^<]+<span[^>]+>([^<]+)</span>\s*</td>\s+<td\s+width="[^"]+"\s+align="center">[\s\S]+?</td>\s+<td\s+class="title">[\s\S]*?<a\s+href="([^"]+)"\s+target="_blank"\s*>\s*([\s\S]+?)\s*?</a>[\s\S]+?</td>[\s\S]+?<td\s+nowrap="nowrap"\s+align="center">\s+<a\s+class="download-arrow arrow-magnet"\s+title="磁力下載"\s+href="([^"]+)">[^<]+</a>[\s\S]+?</td>\s+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span class="btl_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span\s+class="bts_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>\s+<td\s+align="center"><a\s+href="[^"]+">[\s\S]+?</a></td>\s+</tr>'
+	reg = r'<tr\s+class="[^"]*">\s+<td\s+width="[^"]+">[^<]+<span[^>]+>([^<]+)</span>\s*</td>\s+<td\s+width="[^"]+"\s+align="center">[\s\S]+?</td>\s+<td\s+class="title">[\s\S]*?<a\s+href="([^"]+)"\s+target="_blank"\s*>\s*([\s\S]+?)\s*?</a>[\s\S]+?</td>[\s\S]+?<td\s+nowrap="nowrap"\s+align="center">\s+<a\s+class="download-arrow arrow-magnet"\s+title="磁力下載"\s+href="([^"]*)">[^<]+</a>[\s\S]+?</td>\s+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span class="btl_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center"><span\s+class="bts_1">([\s\S]+?)</span></td>[^<]+<td\s+nowrap="nowrap"\s+align="center">([\s\S]+?)</td>\s+<td\s+align="center"><a\s+href="[^"]+">[\s\S]+?</a></td>\s+</tr>'
 
 	def get_data(self, param):
 		[page, what, cate] = param
@@ -53,15 +53,18 @@ class dmhyorg(object):
 		)
 		html = retrieve_url(url)
 		result = re.findall(self.table_reg, html)
-		if len(result) == 0:
-			if __name__ == "__main__":
-				print("test----", url, result)  # test
+		if len(result) == 0 and __name__ == "__main__":
+			print("test----", url, result)  # test
 			raise SystemExit
 		html_raw = result[0]
 		tr_raw = re.findall(self.tr_reg, html_raw)
 		data, item, name = [], {}, ""
 		for tr in tr_raw:
 			result = re.findall(self.reg, tr)
+			""" test """
+			# if len(result) == 0:
+			# 	print(tr)
+			# 	exit()
 			for v in result:
 				name = (
 					re.compile(r"<[^>]+>", re.S)
@@ -70,7 +73,7 @@ class dmhyorg(object):
 					.replace("\n", "")
 					.replace("\xa0", "")
 				)
-				if cate == 31 and what == '':
+				if cate == 31:
 					name = '[' + v[0] + ']' + name
 				item = {
 					"link": v[3],
@@ -82,23 +85,25 @@ class dmhyorg(object):
 					"engine_url": self.url,
 				}
 				data.append(item)
-				# data.append(name)
-		# print(tr, data, len(data))
+				### test ###
+		# 		data.append(name + "\r\n\r\n")
+		# print(data, len(data))
 		# exit()
-		return [data, len(data)]
+		return [data, len(data), url]
 
 	def search(self, what, cat="all", maxpage=6):
-		page, cate, total = 1, self.supported_categories.get(cat, "0"), 0
+		page, cate, total, url_arr = 1, self.supported_categories.get(cat, "0"), 0, []
 		while True:
 			param = [page, what, cate]
-			[data, len] = self.get_data(param)
+			[data, len, url] = self.get_data(param)
+			url_arr.append(url)
 			total += len
 			for item in data:
 				prettyPrinter(item)
 			if page >= maxpage or page >= self.page_max or len < 80:
 				break
 			page += 1
-		return total
+		return [total, url_arr]
 
 
 """ test """
@@ -114,10 +119,10 @@ def main():
 	if len(args) > 2:
 		maxpage = int(args[2])
 	else:
-		maxpage = 1
+		maxpage = 6
 	dmhy = dmhyorg()
-	total = dmhy.search(title, "tv", maxpage)
-	print(total)
+	[total, url_arr] = dmhy.search(title, "tv", maxpage)
+	print(url_arr, total)
 
 
 if __name__ == "__main__":
